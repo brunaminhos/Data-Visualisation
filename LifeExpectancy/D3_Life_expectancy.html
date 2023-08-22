@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://dimplejs.org/dist/dimple.v2.0.0.min.js"></script>
+    <script type="text/javascript">
+
+	  function draw(data) {
+      "use strict";
+       
+          var margin = 75,
+              width = 1490 - margin,
+              height = 600 - margin;
+
+debugger;
+d3.select('body').append('h2').text("Correlation between life expectancy and GDP in developed and developing countries")
+
+          var svg = d3.select("body")
+            .append("svg")
+              .attr("width", width + margin)
+              .attr("height", height + margin)
+            .append('g')
+                .attr('class','chart');
+
+
+          // var myChart = new dimple.chart(svg, data);
+          // //myChart.setBounds(75, 30, 490, 330) // TAKE THIS AT THE END
+          // var x = myChart.addCategoryAxis("x", "GDP");
+          // var y = myChart.addCategoryAxis("y", "Life_expect");
+          // //y.addOrderRule("");
+         
+          // myChart.addSeries("Status", dimple.plot.bubble);
+          // myChart.addLegend(300, 10, 360, 20, "right");
+          // myChart.draw();
+
+           var myChart = new dimple.chart(svg, data);
+           myChart.setBounds(60, 30, 420, 330)
+
+            myChart.addCategoryAxis("x", "GDP");
+            myChart.addCategoryAxis("y", "Life_expect");
+           myChart.addSeries("Status", dimple.plot.bubble);
+           var myLegend = myChart.addLegend(530, 100, 60, 300, "Right");
+           myChart.draw();
+
+
+           myChart.legends = [];
+
+           svg.selectAll("title_text")
+          .data(["Click legend to","show/hide Developing or Developed:"])
+          .enter()
+          .append("text")
+            .attr("x", 499)
+            .attr("y", function (d, i) { return 50 + i * 14; })
+            .style("font-family", "sans-serif")
+            .style("font-size", "10px")
+            .style("color", "Black")
+            .text(function (d) { return d; });
+
+            var filterValues = dimple.getUniqueValues(data, "Status");
+            myLegend.shapes.selectAll("rect")
+            .on("click", function (e) {
+              var hide = false;
+            var newFilters = [];
+            filterValues.forEach(function (f) {
+              if (f === e.aggField.slice(-1)[0]) {
+                hide = true;
+              } else {
+                newFilters.push(f);
+              }
+            });
+            if (hide) {
+              d3.select(this).style("opacity", 0.2);
+            } else {
+              newFilters.push(e.aggField.slice(-1)[0]);
+              d3.select(this).style("opacity", 0.8);
+            }
+            filterValues = newFilters;
+            myChart.data = dimple.filterData(data, "Status", filterValues);
+            myChart.draw(800);
+          });
+        }
+  
+      </script>
+  </head>
+<body>
+  <script type="text/javascript">
+  /*
+    Use D3 (not dimple.js) to load the TSV file
+    and pass the contents of it to the draw function
+    */
+    d3.csv("life_expectancy.csv", draw);
+  </script>
+</body>
+</html>
